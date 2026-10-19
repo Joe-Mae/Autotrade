@@ -1,0 +1,1 @@
+﻿[2026-10-16 13:55:03] local.ERROR: The "C:\wamp64\tmp\php42A8.tmp" file does not exist or is not readable. {"userId":1,"exception":"[object] (Symfony\\Component\\Mime\\Exception\\InvalidArgumentException(code: 0): The \"C:\\wamp64\\tmp\\php42A8.tmp\" file does not exist or is not readable. at C:/Projects/autotrade-laravel/vendor/symfony/mime/FileinfoMimeTypeGuesser.php:48)
