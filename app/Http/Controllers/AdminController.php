@@ -20,9 +20,11 @@ class AdminController extends Controller
         $pendingPurchases = $purchases->whereIn('statut', ['en_attente', 'en_cours'])->values();
 
         // Clients distincts (regroupés par e-mail) issus des demandes et des messages.
+        // On repasse en collection simple : Eloquent\Collection::merge() attend des modèles.
         $clients = $purchases
             ->map(fn ($p) => ['nom' => $p->nom, 'email' => $p->email, 'date' => $p->created_at])
-            ->merge($messages->map(fn ($m) => ['nom' => $m->nom, 'email' => $m->email, 'date' => $m->created_at]))
+            ->toBase()
+            ->merge($messages->map(fn ($m) => ['nom' => $m->nom, 'email' => $m->email, 'date' => $m->created_at])->toBase())
             ->filter(fn ($c) => trim((string) $c['email']) !== '')
             ->groupBy(fn ($c) => strtolower((string) $c['email']))
             ->map(fn ($group) => [

@@ -245,7 +245,20 @@
                                 @unless($m->lu)<span class="at-badge at-badge--dispo ms-2">Nouveau</span>@endunless
                             </td>
                             <td>{{ $m->email }}</td>
-                            <td style="max-width:320px">{{ $m->message }}</td>
+                            <td style="max-width:320px">
+                                <button type="button" class="msg-preview"
+                                        data-message-open
+                                        data-message-nom="{{ $m->nom }}"
+                                        data-message-email="{{ $m->email }}"
+                                        data-message-telephone="{{ $m->telephone }}"
+                                        data-message-date="{{ $m->created_at->format('d/m/Y à H:i') }}"
+                                        data-message-lu="{{ $m->lu ? '1' : '0' }}"
+                                        data-message-read-url="{{ route('admin.messages.read', $m) }}">
+                                    {{ \Illuminate\Support\Str::limit($m->message, 90) }}
+                                    <span class="msg-preview__hint">Agrandir</span>
+                                </button>
+                                <span class="d-none" data-message-full>{{ $m->message }}</span>
+                            </td>
                             <td class="col-actions">
                                 @unless($m->lu)
                                     <form method="POST" action="{{ route('admin.messages.read', $m) }}" class="d-inline">
@@ -262,6 +275,31 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    {{-- Vue détaillée d'un message client --}}
+    <div class="admin-modal" id="clientMessageModal" hidden>
+        <div class="admin-modal__backdrop" data-modal-close></div>
+        <div class="admin-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="clientMessageTitle">
+            <button type="button" class="admin-modal__close" data-modal-close aria-label="Fermer la fenêtre">&times;</button>
+            <p class="section-label mb-1" id="clientMessageDate"></p>
+            <h2 class="admin-modal__title" id="clientMessageTitle"></h2>
+            <div class="admin-modal__meta">
+                <a id="clientMessageEmail" href="#"></a>
+                <span class="admin-modal__dot">·</span>
+                <span id="clientMessagePhone"></span>
+                <span class="at-badge at-badge--dispo ms-2 d-none" id="clientMessageNew">Nouveau</span>
+            </div>
+            <div class="admin-modal__body" id="clientMessageBody"></div>
+            <div class="admin-modal__actions">
+                <a id="clientMessageReply" class="btn-volt border-0" href="#">RÉPONDRE PAR E-MAIL</a>
+                <form id="clientMessageReadForm" method="POST" class="d-inline d-none">
+                    @csrf
+                    <button type="submit" class="btn-outline-custom">MARQUER COMME LU</button>
+                </form>
+                <button type="button" class="btn-outline-custom" data-modal-close>FERMER</button>
+            </div>
         </div>
     </div>
 </section>
@@ -444,6 +482,70 @@
     });
 
     applyFilters();
+})();
+
+// --- Lecture détaillée d'un message client -----------------------------
+(function () {
+    var modal = document.getElementById('clientMessageModal');
+    if (!modal) return;
+
+    var siteName = @json($site['site_name'] ?? 'AUTOTRADE');
+
+    var elDate = document.getElementById('clientMessageDate');
+    var elTitle = document.getElementById('clientMessageTitle');
+    var elEmail = document.getElementById('clientMessageEmail');
+    var elPhone = document.getElementById('clientMessagePhone');
+    var elBody = document.getElementById('clientMessageBody');
+    var elReply = document.getElementById('clientMessageReply');
+    var elNew = document.getElementById('clientMessageNew');
+    var elReadForm = document.getElementById('clientMessageReadForm');
+    var lastFocus = null;
+
+    function openModal(button) {
+        var cell = button.closest('td');
+        var full = cell ? cell.querySelector('[data-message-full]') : null;
+        var body = full ? full.textContent.trim() : button.textContent.trim();
+        var email = button.dataset.messageEmail || '';
+        var lu = button.dataset.messageLu === '1';
+
+        elDate.textContent = button.dataset.messageDate || '';
+        elTitle.textContent = button.dataset.messageNom || 'Message';
+        elEmail.textContent = email;
+        elEmail.href = 'mailto:' + email;
+        elPhone.textContent = button.dataset.messageTelephone || '';
+        elBody.textContent = body;
+        elNew.classList.toggle('d-none', lu);
+
+        elReply.href = 'mailto:' + email +
+            '?subject=' + encodeURIComponent('Réponse à votre message — ' + siteName);
+
+        elReadForm.classList.toggle('d-none', lu);
+        if (!lu) elReadForm.action = button.dataset.messageReadUrl || '';
+
+        lastFocus = button;
+        modal.hidden = false;
+        document.body.classList.add('has-modal');
+        var closeBtn = modal.querySelector('.admin-modal__close');
+        if (closeBtn) closeBtn.focus();
+    }
+
+    function closeModal() {
+        modal.hidden = true;
+        document.body.classList.remove('has-modal');
+        if (lastFocus) lastFocus.focus();
+    }
+
+    document.querySelectorAll('[data-message-open]').forEach(function (button) {
+        button.addEventListener('click', function () { openModal(button); });
+    });
+
+    modal.querySelectorAll('[data-modal-close]').forEach(function (element) {
+        element.addEventListener('click', closeModal);
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !modal.hidden) closeModal();
+    });
 })();
 </script>
 @endpush

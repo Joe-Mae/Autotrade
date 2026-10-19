@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Derrière un tunnel (ngrok, proxy) : honorer X-Forwarded-Host / X-Forwarded-Proto
+        // pour que les URLs générées (assets, routes, redirections) utilisent le domaine public.
+        // En production, remplacer '*' par l'adresse IP du proxy.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

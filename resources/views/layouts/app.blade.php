@@ -15,7 +15,7 @@
     <title>@yield('title', $site['site_name'] . ' — ' . $site['site_tagline'])</title>
     <meta name="description" content="@yield('description', $site['site_tagline'] . ' — supercars, berlines de luxe, SUV et électriques. Garantie 12 mois, financement et reprise.')">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ filemtime(public_path('css/style.css')) }}">
     @stack('head')
 </head>
 <body>
