@@ -26,6 +26,13 @@ class PurchaseController extends Controller
 
     public function store(Request $request, string $vehicle)
     {
+        // Champ piège invisible : seuls les robots le remplissent.
+        // On simule un succès sans rien enregistrer ni envoyer.
+        if ($request->filled('site_web')) {
+            return redirect()->route('catalogue')
+                ->with('success', 'Votre demande a bien été prise en compte. Un conseiller AUTOTRADE vous recontacte sous 24 heures.');
+        }
+
         $vehicle = $this->findSellableVehicle($vehicle);
 
         if (! $vehicle) {

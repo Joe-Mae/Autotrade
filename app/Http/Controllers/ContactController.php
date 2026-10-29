@@ -17,10 +17,17 @@ class ContactController extends Controller
 
     public function store(Request $request)
     {
+        // Champ piège invisible : seuls les robots le remplissent.
+        // On simule un succès sans rien enregistrer ni envoyer.
+        if ($request->filled('site_web')) {
+            return redirect()->route('contact')
+                ->with('success', 'Votre message a bien été envoyé. Nous vous répondons sous 24 heures.');
+        }
+
         $data = $request->validate([
             'nom' => 'required|string|max:120',
             'email' => 'required|email|max:120',
-            'telephone' => 'required|string|max:40',
+            'telephone' => 'nullable|string|max:40',
             'message' => 'required|string|max:3000',
         ]);
 

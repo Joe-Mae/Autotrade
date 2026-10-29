@@ -10,6 +10,10 @@
         <div class="col-lg-7">
             <form method="POST" action="{{ route('demande.achat.store', $vehicle) }}" class="border border-custom bg-panel p-4 p-md-5">
                 @csrf
+                {{-- Champ piège anti-robot : masqué et inaccessible au clavier. --}}
+                <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden">
+                    <input type="text" name="site_web" tabindex="-1" autocomplete="off">
+                </div>
                 <h2 class="font-display fs-3 mb-2">Votre projet d'achat</h2>
                 <p class="text-muted-custom mb-4">Indiquez-nous vos coordonnées et votre projet. Un conseiller vente vous recontacte sous 24 h avec une offre personnalisée.</p>
                 <input name="nom" value="{{ old('nom') }}" required class="form-control form-control-dark mb-3" placeholder="Nom et prénom">

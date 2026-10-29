@@ -1,9 +1,14 @@
 @extends('emails.layout')
 
+@php
+    $accent = \App\Support\Theme::accent($site['color_primary'] ?? null);
+    $onAccent = \App\Support\Theme::contrastText($site['color_primary'] ?? null);
+@endphp
+
 @section('subject', 'Votre message a bien été reçu')
 
 @section('content')
-    <p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#cfff04;">Message reçu</p>
+    <p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{{ $accent }};">Message reçu</p>
     <h1 style="margin:0 0 18px;font-size:26px;line-height:1.2;font-weight:800;color:#f5f5f0;">
         Merci {{ $contact->nom }}.
     </h1>
@@ -30,8 +35,8 @@
 
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px;">
         <tr>
-            <td style="background:#cfff04;">
-                <a href="{{ url(route('catalogue', [], false)) }}" style="display:inline-block;padding:14px 26px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0a0a0a;text-decoration:none;">
+            <td style="background:{{ $accent }};">
+                <a href="{{ url(route('catalogue', [], false)) }}" style="display:inline-block;padding:14px 26px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:{{ $onAccent }};text-decoration:none;">
                     Parcourir le catalogue
                 </a>
             </td>

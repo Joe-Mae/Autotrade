@@ -18,6 +18,11 @@ class Setting extends Model
             'site_tagline' => "Vente de voitures d'exception",
             'logo' => '',
 
+            // Palette du site (ancienne palette par défaut : citron / olive / noir)
+            'color_primary' => '#cfff04',
+            'color_secondary' => '#536900',
+            'color_dark' => '#0a0a0a',
+
             'hero_badge' => "Vente de voitures d'exception depuis 2009",
             'hero_title_1' => 'ACHETEZ.',
             'hero_title_2' => 'PROFITEZ.',

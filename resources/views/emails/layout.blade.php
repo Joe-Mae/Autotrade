@@ -1,5 +1,6 @@
 @php
     $siteName = $site['site_name'] ?? 'AUTOTRADE';
+    $accent = \App\Support\Theme::accent($site['color_primary'] ?? null);
     $siteTagline = $site['site_tagline'] ?? '';
     $contactEmail = $site['contact_email'] ?? '';
     $contactPhone = $site['contact_phone'] ?? '';
@@ -13,14 +14,14 @@
     <meta name="color-scheme" content="dark light">
     <title>@yield('subject', $siteName)</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;color:#f5f5f0;font-family:'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0a0a0a;padding:28px 14px;">
+<body style="margin:0;padding:0;background:#000000;color:#f5f5f0;font-family:'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#000000;padding:28px 14px;">
         <tr>
             <td align="center">
                 <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#111111;border:1px solid #262626;">
                     {{-- En-tête --}}
                     <tr>
-                        <td style="padding:24px 30px;border-bottom:2px solid #cfff04;">
+                        <td style="padding:24px 30px;border-bottom:2px solid {{ $accent }};">
                             <span style="display:inline-block;font-size:20px;font-weight:800;letter-spacing:1px;color:#f5f5f0;">{{ $siteName }}</span>
                             @if($siteTagline !== '')
                                 <span style="display:block;margin-top:6px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8a8a82;">{{ $siteTagline }}</span>

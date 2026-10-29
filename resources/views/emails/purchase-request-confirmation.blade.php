@@ -1,5 +1,10 @@
 @extends('emails.layout')
 
+@php
+    $accent = \App\Support\Theme::accent($site['color_primary'] ?? null);
+    $onAccent = \App\Support\Theme::contrastText($site['color_primary'] ?? null);
+@endphp
+
 @section('subject', 'Votre demande d\'achat a bien été reçue')
 
 @section('content')
@@ -7,7 +12,7 @@
         $purchaseUrl = $vehicle ? url(route('vehicule.show', $vehicle, false)) : null;
     @endphp
 
-    <p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#cfff04;">Demande reçue</p>
+    <p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{{ $accent }};">Demande reçue</p>
     <h1 style="margin:0 0 18px;font-size:26px;line-height:1.2;font-weight:800;letter-spacing:-0.5px;color:#f5f5f0;">
         Merci {{ $purchase->nom }}.
     </h1>
@@ -38,7 +43,7 @@
         <tr>
             <td style="padding:16px 18px;border-bottom:1px solid #262626;">
                 <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#8a8a82;">Prix de vente</span><br>
-                <span style="font-size:16px;font-weight:800;color:#cfff04;">
+                <span style="font-size:16px;font-weight:800;color:{{ $accent }};">
                     {{ $vehicle && $vehicle->prix_vente !== null ? \App\Models\Vehicle::cfa($vehicle->prix_vente) : 'Sur devis' }}
                 </span>
             </td>
@@ -57,8 +62,8 @@
     @if($purchaseUrl)
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px;">
             <tr>
-                <td style="background:#cfff04;">
-                    <a href="{{ $purchaseUrl }}" style="display:inline-block;padding:14px 26px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0a0a0a;text-decoration:none;">
+                <td style="background:{{ $accent }};">
+                    <a href="{{ $purchaseUrl }}" style="display:inline-block;padding:14px 26px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:{{ $onAccent }};text-decoration:none;">
                         Revoir le véhicule
                     </a>
                 </td>

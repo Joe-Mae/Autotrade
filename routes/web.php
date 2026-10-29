@@ -17,14 +17,14 @@ Route::redirect('/vente', '/catalogue');
 Route::get('/vehicule/{vehicle}', [VehicleController::class, 'show'])->name('vehicule.show');
 
 Route::get('/demande-achat/{vehicle}', [PurchaseController::class, 'create'])->name('demande.achat');
-Route::post('/demande-achat/{vehicle}', [PurchaseController::class, 'store'])->name('demande.achat.store');
+Route::post('/demande-achat/{vehicle}', [PurchaseController::class, 'store'])->middleware('throttle:public-forms')->name('demande.achat.store');
 
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
-Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:public-forms')->name('contact.store');
 
 // Authentification admin
 Route::get('/admin/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/admin/login', [AuthController::class, 'login'])->name('login.submit');
+Route::post('/admin/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login.submit');
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Zone admin protégée

@@ -25,6 +25,7 @@
                     </li>
                 </ul>
                 @auth
+                    {{-- Liens réservés à l'administrateur connecté (pas de lien « Admin » pour le public). --}}
                     <div class="d-flex align-items-center gap-2 ms-md-3">
                         <a href="{{ route('admin') }}" target="_blank" rel="noopener noreferrer" class="btn-admin">Admin</a>
                         <form method="POST" action="{{ route('logout') }}" class="d-inline">
@@ -32,8 +33,6 @@
                             <button type="submit" class="btn-outline-custom border-0 py-2 px-3" style="font-size:11px;clip-path:none">Déconnexion</button>
                         </form>
                     </div>
-                @else
-                    <a href="{{ route('login') }}" target="_blank" rel="noopener noreferrer" class="btn-admin ms-md-3">Admin</a>
                 @endauth
             </div>
             <button type="button" class="btn-theme-toggle ms-md-3" id="themeToggle" aria-label="Mode clair" title="Mode clair">

@@ -15,6 +15,10 @@
                     <h3 class="font-display fs-3 mb-4">Une question ?</h3>
                     <form action="{{ route('contact.store') }}" method="POST">
                         @csrf
+                        {{-- Champ piège anti-robot : masqué et inaccessible au clavier. --}}
+                        <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden">
+                            <input type="text" name="site_web" tabindex="-1" autocomplete="off">
+                        </div>
                         <input type="email" name="email" class="form-control form-control-dark mb-3" placeholder="Votre e-mail" required>
                         <input type="hidden" name="nom" value="Visiteur footer">
                         <textarea name="message" class="form-control form-control-dark mb-3" rows="3" placeholder="Votre demande d'achat" required></textarea>

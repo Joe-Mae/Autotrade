@@ -1,9 +1,14 @@
 @extends('emails.layout')
 
+@php
+    $accent = \App\Support\Theme::accent($site['color_primary'] ?? null);
+    $onAccent = \App\Support\Theme::contrastText($site['color_primary'] ?? null);
+@endphp
+
 @section('subject', 'Nouveau message du site')
 
 @section('content')
-    <p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#cfff04;">Nouveau message</p>
+    <p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:{{ $accent }};">Nouveau message</p>
     <h1 style="margin:0 0 18px;font-size:24px;line-height:1.2;font-weight:800;color:#f5f5f0;">
         {{ $contact->nom }}
     </h1>
@@ -25,7 +30,7 @@
                 <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#8a8a82;">Contact</span><br>
                 <span style="font-size:15px;font-weight:700;color:#f5f5f0;">{{ $contact->nom }}</span>
                 <span style="display:block;margin-top:4px;font-size:13px;color:#c9c9c2;">
-                    <a href="mailto:{{ $contact->email }}" style="color:#cfff04;text-decoration:none;">{{ $contact->email }}</a>
+                    <a href="mailto:{{ $contact->email }}" style="color:{{ $accent }};text-decoration:none;">{{ $contact->email }}</a>
                     · {{ $contact->telephone }}
                 </span>
             </td>
@@ -40,8 +45,8 @@
 
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px;">
         <tr>
-            <td style="background:#cfff04;">
-                <a href="{{ url(route('admin', [], false)).'#clients' }}" style="display:inline-block;padding:14px 26px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0a0a0a;text-decoration:none;">
+            <td style="background:{{ $accent }};">
+                <a href="{{ url(route('admin', [], false)).'#clients' }}" style="display:inline-block;padding:14px 26px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:{{ $onAccent }};text-decoration:none;">
                     Ouvrir la rubrique Clients
                 </a>
             </td>

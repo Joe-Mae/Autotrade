@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Setting;
 use App\Models\MarqueeItem;
+use App\Models\Setting;
 use App\Support\MailSamples;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
@@ -13,6 +14,7 @@ class SettingsController extends Controller
 {
     private const TEXT_KEYS = [
         'site_name', 'site_tagline',
+        'color_primary', 'color_secondary', 'color_dark',
         'hero_badge', 'hero_title_1', 'hero_title_2', 'hero_text',
         'hero_cta_primary', 'hero_cta_secondary',
         'contact_address', 'contact_phone', 'contact_email', 'contact_hours',
@@ -33,6 +35,8 @@ class SettingsController extends Controller
         'hero_slide_4_image',
     ];
 
+    private const COLOR_KEYS = ['color_primary', 'color_secondary', 'color_dark'];
+
     public function edit()
     {
         return view('admin.settings', ['site' => Setting::map(), 'marqueeItems' => MarqueeItem::orderBy('sort_order')->orderBy('id')->get()]);
@@ -43,6 +47,9 @@ class SettingsController extends Controller
         $rules = [
             'site_name' => 'required|string|max:60',
             'site_tagline' => 'required|string|max:120',
+            'color_primary' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'color_secondary' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'color_dark' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'hero_badge' => 'nullable|string|max:120',
             'hero_title_1' => 'required|string|max:40',
             'hero_title_2' => 'nullable|string|max:40',
@@ -74,14 +81,22 @@ class SettingsController extends Controller
         $data = $request->validate($rules);
 
         foreach (self::TEXT_KEYS as $key) {
-            Setting::put($key, $data[$key] ?? null);
+            $value = $data[$key] ?? null;
+
+            // Les couleurs sont stockées en minuscules, comme dans les feuilles de style.
+            if ($value !== null && in_array($key, self::COLOR_KEYS, true)) {
+                $value = strtolower($value);
+            }
+
+            Setting::put($key, $value);
         }
 
         // Le mot de passe SMTP n'est remplacé que si une nouvelle valeur est saisie.
         if ($request->boolean('clear_mail_password')) {
             Setting::put('mail_password', '');
         } elseif ($request->filled('mail_password')) {
-            Setting::put('mail_password', (string) $request->input('mail_password'));
+            // Chiffré au repos : la base ne contient jamais le mot de passe SMTP en clair.
+            Setting::put('mail_password', Crypt::encryptString((string) $request->input('mail_password')));
         }
 
         foreach (self::IMAGE_KEYS as $key) {

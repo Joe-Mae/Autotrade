@@ -6,8 +6,13 @@ use App\Models\ContactMessage;
 use App\Models\PurchaseRequest;
 use App\Models\Setting;
 use App\Models\Vehicle;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Throwable;
 
 class AppServiceProvider extends ServiceProvider
@@ -35,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
         View::share('site', $site);
 
         $this->applyMailSettings($site);
+        $this->configureRateLimiting();
 
         // Badges et compteurs affichés dans la console d'administration.
         View::composer('layouts.admin', function ($view): void {
@@ -77,7 +83,7 @@ class AppServiceProvider extends ServiceProvider
                 'mail.mailers.smtp.host' => $host,
                 'mail.mailers.smtp.port' => $port,
                 'mail.mailers.smtp.username' => $site['mail_username'] ?: null,
-                'mail.mailers.smtp.password' => $site['mail_password'] ?: null,
+                'mail.mailers.smtp.password' => $this->decryptSetting($site['mail_password'] ?? '') ?: null,
                 // Laravel 11 : « smtps » pour le SSL implicite ; null laisse STARTTLS (port 587).
                 'mail.mailers.smtp.scheme' => $encryption === 'ssl' ? 'smtps' : null,
             ]);
@@ -94,5 +100,48 @@ class AppServiceProvider extends ServiceProvider
         if ($fromName !== '') {
             config(['mail.from.name' => $fromName]);
         }
+    }
+
+    /**
+     * Déchiffre une valeur sensible stockée en base.
+     * Repli sur la valeur brute pour les anciennes configurations enregistrées en clair.
+     */
+    private function decryptSetting($value): string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return '';
+        }
+
+        try {
+            return Crypt::decryptString($value);
+        } catch (Throwable $e) {
+            return $value;
+        }
+    }
+
+    /**
+     * Limitation des tentatives : connexion administrateur et formulaires publics.
+     */
+    private function configureRateLimiting(): void
+    {
+        // Connexion admin : 5 tentatives par minute et par couple e-mail + IP.
+        RateLimiter::for('login', function (Request $request) {
+            $key = Str::lower((string) $request->input('email')).'|'.$request->ip();
+
+            return Limit::perMinute(5)->by($key)->response(
+                fn () => back()
+                    ->withErrors(['email' => 'Trop de tentatives de connexion. Réessayez dans une minute.'])
+                    ->withInput($request->only('email'))
+            );
+        });
+
+        // Formulaires publics : 5 envois par minute et par IP (anti-spam / anti-relais).
+        RateLimiter::for('public-forms', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip())->response(
+                fn () => back()->with('error', 'Trop de demandes envoyées. Merci de patienter une minute avant de réessayer.')
+            );
+        });
     }
 }

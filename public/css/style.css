@@ -1,11 +1,19 @@
 @import url("https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
 
+/* Palette par défaut : citron / olive / noir.
+   Ces valeurs sont recouvertes par le bloc <style> généré à partir des
+   réglages de l'administration (voir partials/theme.blade.php). */
 :root {
   --ink: #0a0a0a;
   --page-bg: #0a0a0a;
   --bone: #f5f5f0;
   --volt: #cfff04;
   --volt-text: #cfff04;
+  --violet: #536900;
+  --violet-text: #536900;
+  --violet-soft: rgba(83, 105, 0, 0.32);
+  --violet-glow: rgba(83, 105, 0, 0.18);
+  --violet-halo: rgba(83, 105, 0, 0.22);
   --panel: #111111;
   --panel2: #1a1a1a;
   --border: rgba(255, 255, 255, 0.1);
@@ -16,6 +24,11 @@
   --page-bg: #f5f5f0;
   --bone: #171811;
   --volt-text: #536900;
+  --violet: #536900;
+  --violet-text: #536900;
+  --violet-soft: rgba(83, 105, 0, 0.2);
+  --violet-glow: rgba(83, 105, 0, 0.14);
+  --violet-halo: rgba(83, 105, 0, 0.16);
   --panel: #ffffff;
   --panel2: #e9ebe3;
   --border: rgba(23, 24, 17, 0.14);
@@ -204,6 +217,17 @@ body {
   background: var(--panel);
 }
 
+/* Halo violet sur le diaporama : rappel de l'accent secondaire. */
+.hero-slider::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(55% 85% at 72% 55%, var(--violet-halo), transparent 70%);
+  mix-blend-mode: screen;
+}
+
 .hero-slider .hero-slide {
   position: absolute;
   inset: 0;
@@ -318,7 +342,8 @@ body {
 }
 
 .vehicle-card:hover {
-  border-color: rgba(207, 255, 4, 0.3);
+  border-color: var(--violet);
+  box-shadow: 0 0 0 1px var(--violet-soft), 0 14px 44px var(--violet-glow);
   color: inherit;
 }
 
@@ -335,7 +360,7 @@ body {
 }
 
 .badge-dispo {
-  border: 1px solid rgba(207, 255, 4, 0.5);
+  border: 1px solid rgba(255, 214, 0, 0.5);
   color: var(--volt-text);
   font-size: 9px;
   font-weight: 900;
@@ -394,7 +419,7 @@ body {
   background: transparent;
   color: var(--bone);
   font-weight: 700;
-  border: 1px solid var(--border);
+  border: 1px solid var(--violet);
   padding: 1rem 2.5rem;
   clip-path: polygon(0 0, 100% 0, calc(100% - 24px) 100%, 0 100%);
   transition: all 0.2s;
@@ -403,8 +428,9 @@ body {
 }
 
 .btn-outline-custom:hover {
-  border-color: var(--volt-text);
-  color: var(--volt-text);
+  background: var(--violet);
+  border-color: var(--violet);
+  color: #ffffff;
 }
 
 .btn-filter {
@@ -491,9 +517,15 @@ select.form-control-dark {
    -webkit-appearance: none;
    -moz-appearance: none;
    padding-right: 3.5rem !important;
-   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d4ff00' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+   /* Flèche dessinée avec des dégradés : elle suit la couleur d'accent. */
+   background-image:
+     linear-gradient(45deg, transparent 50%, var(--volt-text) 50%),
+     linear-gradient(135deg, var(--volt-text) 50%, transparent 50%) !important;
+   background-position:
+     calc(100% - 1.5rem) calc(50% + 1px),
+     calc(100% - 1.15rem) calc(50% + 1px) !important;
+   background-size: 0.45rem 0.45rem, 0.45rem 0.45rem !important;
    background-repeat: no-repeat !important;
-   background-position: right 1.25rem center !important;
    background-color: var(--panel2) !important;
 }
 
@@ -666,7 +698,7 @@ select.form-control-dark {
 }
 
 .link-underline {
-  border-bottom: 2px solid rgba(207, 255, 4, 0.3);
+  border-bottom: 2px solid rgba(255, 214, 0, 0.3);
   padding-bottom: 0.25rem;
   font-size: 10px;
   font-weight: 700;
@@ -683,7 +715,7 @@ select.form-control-dark {
 }
 
 .success-msg {
-  border: 1px solid rgba(207, 255, 4, 0.4);
+  border: 1px solid rgba(255, 214, 0, 0.4);
   padding: 1rem;
   font-size: 12px;
   text-transform: uppercase;
@@ -719,7 +751,7 @@ select.form-control-dark {
   width: 100%;
   max-width: 470px;
   background: var(--panel);
-  border: 1px solid rgba(207, 255, 4, 0.35);
+  border: 1px solid rgba(255, 214, 0, 0.35);
   padding: 2.5rem 2rem;
   text-align: center;
   animation: confirm-pop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;

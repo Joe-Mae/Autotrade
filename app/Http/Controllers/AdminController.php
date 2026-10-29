@@ -7,6 +7,7 @@ use App\Models\PurchaseRequest;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
 {
@@ -263,10 +264,12 @@ class AdminController extends Controller
             'badge' => 'nullable|string|max:60',
             'description' => 'nullable|string|max:2000',
             'image' => 'nullable|string|max:255',
-            'main_image' => 'nullable|file|max:2048',
+            // Seules de vraies images sont acceptées : le type MIME est vérifié par la
+            // règle « image » et l'extension est ensuite forcée depuis le contenu réel.
+            'main_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'galerie' => 'nullable|string',
             'photos' => 'nullable|array|max:4',
-            'photos.*' => 'nullable|file|max:2048',
+            'photos.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $data['disponible'] = $request->boolean('disponible', true);
@@ -285,7 +288,16 @@ class AdminController extends Controller
             mkdir($directory, 0755, true);
         }
 
-        $name = Str::random(40).'.'.$file->getClientOriginalExtension();
+        // Extension déduite du contenu réel du fichier, jamais du nom fourni par le client.
+        $extension = strtolower((string) $file->extension());
+
+        if (! in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+            throw ValidationException::withMessages([
+                'main_image' => 'Format d\'image non autorisé (jpg, jpeg, png ou webp).',
+            ]);
+        }
+
+        $name = Str::random(40).'.'.$extension;
         $file->move($directory, $name);
 
         return 'uploads/vehicles/'.$name;

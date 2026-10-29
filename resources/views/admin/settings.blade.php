@@ -55,6 +55,44 @@
             </div>
         </div>
 
+        {{-- Palette --}}
+        <div class="border border-custom bg-panel p-4 p-md-5 mb-4">
+            <h2 class="font-display fs-3 mb-1">Palette du site</h2>
+            <p class="text-muted-custom small mb-0">
+                Trois couleurs pilotent l'ensemble du site public, de l'administration et des e-mails.
+                L'aperçu ci-dessous se met à jour pendant la saisie ; le site applique les nouvelles
+                couleurs dès l'enregistrement.
+            </p>
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <label for="color_primary" class="small text-uppercase text-muted-custom fw-bold d-block mb-2" style="font-size:10px">Couleur principale</label>
+                    <input type="color" id="color_primary" name="color_primary" value="{{ old('color_primary', $site['color_primary']) }}" class="form-control form-control-color form-control-dark w-100" style="height:48px">
+                    <p class="text-muted-custom small mb-0 mt-2">Boutons principaux, titres et libellés accentués.</p>
+                </div>
+                <div class="col-md-4">
+                    <label for="color_secondary" class="small text-uppercase text-muted-custom fw-bold d-block mb-2" style="font-size:10px">Couleur secondaire</label>
+                    <input type="color" id="color_secondary" name="color_secondary" value="{{ old('color_secondary', $site['color_secondary']) }}" class="form-control form-control-color form-control-dark w-100" style="height:48px">
+                    <p class="text-muted-custom small mb-0 mt-2">Contours des boutons, survols et halos.</p>
+                </div>
+                <div class="col-md-4">
+                    <label for="color_dark" class="small text-uppercase text-muted-custom fw-bold d-block mb-2" style="font-size:10px">Fond sombre</label>
+                    <input type="color" id="color_dark" name="color_dark" value="{{ old('color_dark', $site['color_dark']) }}" class="form-control form-control-color form-control-dark w-100" style="height:48px">
+                    <p class="text-muted-custom small mb-0 mt-2">Arrière-plan du mode sombre et des panneaux.</p>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-3 mt-4 align-items-center" id="palettePreview">
+                <span class="small text-uppercase fw-bold px-3 py-2" id="palettePreviewPrimary" style="font-size:11px;letter-spacing:0.12em;">Bouton principal</span>
+                <span class="small text-uppercase fw-bold px-3 py-2" id="palettePreviewSecondary" style="font-size:11px;letter-spacing:0.12em;">Bouton secondaire</span>
+                <span class="small fw-bold" id="palettePreviewText" style="letter-spacing:0.12em;">Titre accentué</span>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <button type="button" class="btn-volt border-0" data-palette="#cfff04,#536900,#0a0a0a">Palette d'origine</button>
+                <button type="button" class="btn-volt border-0" data-palette="#ffd600,#8a2be2,#000000">Jaune &amp; violet</button>
+            </div>
+        </div>
+
         {{-- Hero --}}
         <div class="border border-custom bg-panel p-4 p-md-5 mb-4">
             <h2 class="font-display fs-3 mb-4">Accueil — bloc principal</h2>
@@ -299,3 +337,57 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        const primary = document.getElementById('color_primary');
+        const secondary = document.getElementById('color_secondary');
+        const dark = document.getElementById('color_dark');
+        const preview = document.getElementById('palettePreview');
+
+        if (!primary || !secondary || !dark || !preview) {
+            return;
+        }
+
+        const chipPrimary = document.getElementById('palettePreviewPrimary');
+        const chipSecondary = document.getElementById('palettePreviewSecondary');
+        const chipText = document.getElementById('palettePreviewText');
+
+        // Luminance relative : choisit un texte noir ou blanc sur l'aplat principal.
+        const contrast = (hex) => {
+            const channels = [1, 3, 5]
+                .map((index) => parseInt(hex.slice(index, index + 2), 16) / 255)
+                .map((value) => (value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4)));
+
+            const luminance = 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+
+            return luminance > 0.45 ? '#000000' : '#ffffff';
+        };
+
+        const render = () => {
+            preview.style.background = dark.value;
+            chipPrimary.style.background = primary.value;
+            chipPrimary.style.color = contrast(primary.value);
+            chipSecondary.style.border = '1px solid ' + secondary.value;
+            chipSecondary.style.color = secondary.value;
+            chipText.style.color = primary.value;
+        };
+
+        [primary, secondary, dark].forEach((field) => field.addEventListener('input', render));
+
+        document.querySelectorAll('[data-palette]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const [newPrimary, newSecondary, newDark] = button.dataset.palette.split(',');
+
+                primary.value = newPrimary;
+                secondary.value = newSecondary;
+                dark.value = newDark;
+                render();
+            });
+        });
+
+        render();
+    })();
+</script>
+@endpush
