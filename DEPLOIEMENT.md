@@ -62,6 +62,26 @@ location ~* ^/uploads/.*\.(php|phtml|phar|php[0-9])$ {
 
 La validation des images côté Laravel reste la protection principale.
 
+### Vidéos de présentation
+
+Chaque véhicule peut recevoir une vidéo MP4, WebM ou MOV (128 Mo maximum),
+stockée dans `public/uploads/vehicles/`. Trois limites serveur doivent être relevées :
+
+```ini
+; php.ini
+upload_max_filesize = 128M
+post_max_size = 136M
+max_execution_time = 300
+```
+
+```nginx
+# Nginx : autoriser l'envoi de la vidéo (140 Mo de marge)
+client_max_body_size 140m;
+```
+
+Sous Apache, si `LimitRequestBody` est défini, le passer à `146800640` (140 Mo).
+Sans ces réglages, l'administration affiche « Le fichier n'a pas pu être téléversé ».
+
 ### Reverse proxy / Cloudflare
 `bootstrap/app.php` ne fait confiance qu'à `127.0.0.1` et `::1`. Si le serveur est
 derrière Cloudflare ou un Nginx proxy sur une autre machine, ajouter son IP :

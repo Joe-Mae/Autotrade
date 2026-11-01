@@ -359,6 +359,26 @@ body {
   filter: grayscale(0);
 }
 
+/* Pastille « Vidéo » sur les vignettes du catalogue. */
+.video-flag {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  background: rgba(10, 10, 10, 0.8);
+  color: var(--volt-text);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+
 .badge-dispo {
   border: 1px solid rgba(255, 214, 0, 0.5);
   color: var(--volt-text);

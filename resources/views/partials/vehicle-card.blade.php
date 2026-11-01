@@ -3,8 +3,11 @@
 @endphp
 <div class="col-md-6 col-lg-4">
     <a href="{{ route('vehicule.show', $vehicle) }}" class="vehicle-card" aria-label="Voir le détail de {{ $vehicle->nom }}">
-        <div class="overflow-hidden">
+        <div class="overflow-hidden position-relative">
             <img src="{{ asset($vehicle->image) }}" alt="{{ $vehicle->nom }} à vendre — {{ $vehicle->categorie }}" loading="lazy">
+            @if($vehicle->video)
+                <span class="video-flag">▶ Vidéo</span>
+            @endif
         </div>
         <div class="p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
@@ -15,7 +18,7 @@
             </div>
             <h3 class="font-display fs-3 mb-1">{{ $vehicle->nom }}</h3>
             <p class="small text-uppercase text-muted-custom mb-0" style="letter-spacing:0.1em">
-                {{ $vehicle->marque }} · {{ $vehicle->annee }} · {{ $vehicle->puissance }} · {{ $vehicle->km }}
+                {{ $vehicle->marque }} · {{ $vehicle->annee }} · {{ $vehicle->km }}
             </p>
             <div class="d-flex align-items-center justify-content-between border-top border-custom pt-4 mt-4">
                 <div>

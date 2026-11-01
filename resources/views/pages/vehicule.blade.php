@@ -58,7 +58,18 @@
                 gallery.addEventListener('mouseleave', restart);
                 restart();
             })();
-            </script>>
+            </script>
+            @if($vehicle->video)
+                <div class="mt-4">
+                    <p class="section-label mb-2">Vidéo de présentation</p>
+                    <video class="w-100" controls preload="metadata" playsinline
+                           poster="{{ asset($vehicle->image) }}"
+                           style="border:1px solid var(--border);background:#000;display:block">
+                        <source src="{{ asset($vehicle->video) }}" @if($vehicle->video_mime) type="{{ $vehicle->video_mime }}" @endif>
+                        Votre navigateur ne prend pas en charge la lecture vidéo.
+                    </video>
+                </div>
+            @endif
         </div>
         <div class="col-lg-5">
             <div class="d-flex flex-wrap align-items-center gap-2">
@@ -76,7 +87,6 @@
                 @foreach([
                     'État' => $vehicle->etat,
                     'Année' => $vehicle->annee,
-                    'Puissance' => $vehicle->puissance,
                     'Carburant' => $vehicle->carburant,
                     'Transmission' => $vehicle->boite,
                     'Kilométrage' => $vehicle->km,

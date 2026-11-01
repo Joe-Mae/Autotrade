@@ -303,6 +303,56 @@ class SalePagesTest extends TestCase
         $vehicle->delete();
     }
 
+    public function test_admin_can_set_places_and_puissance_is_hidden(): void
+    {
+        $this->seed(AdminSeeder::class);
+        $admin = User::where('email', 'admin@autotrade.fr')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get('/admin/vehicules/creer')
+            ->assertOk()
+            ->assertSee('Places')
+            ->assertSee('name="places"', false);
+
+        $this->actingAs($admin)
+            ->post(route('admin.vehicles.store'), [
+                '_token' => session()->token(),
+                'nom' => 'Places Test',
+                'marque' => 'Test',
+                'categorie' => 'SUV',
+                'etat' => 'Occasion',
+                'annee' => 2023,
+                'carburant' => 'Essence',
+                'boite' => 'Manuel',
+                'km' => '1500',
+                'places' => 7,
+                'prix_vente' => 5000,
+                'description' => 'test',
+                'disponible' => 1,
+            ])
+            ->assertRedirect(route('admin'));
+
+        $vehicle = Vehicle::query()->where('nom', 'Places Test')->firstOrFail();
+
+        $this->assertSame(7, $vehicle->places);
+
+        $this->get(route('vehicule.show', $vehicle))
+            ->assertOk()
+            ->assertSee('Places')
+            ->assertSee('7')
+            ->assertDontSee('Puissance');
+
+        $this->get(route('demande.achat', $vehicle))
+            ->assertOk()
+            ->assertDontSee('Puissance');
+
+        $this->get(route('catalogue'))
+            ->assertOk()
+            ->assertDontSee('Puissance');
+
+        $vehicle->delete();
+    }
+
     public function test_purchase_request_shows_confirmation_popup(): void
     {
         $vehicle = Vehicle::query()->firstOrFail();

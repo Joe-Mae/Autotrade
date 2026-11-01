@@ -77,7 +77,7 @@
             <div class="border border-custom bg-panel p-4 sticky-top" style="top:100px">
                 <img src="{{ asset($vehicle->image) }}" alt="{{ $vehicle->nom }} à vendre" class="img-fluid mb-3" style="aspect-ratio:4/3;object-fit:cover">
                 <h3 class="font-display fs-4">{{ $vehicle->nom }}</h3>
-                <p class="small text-muted-custom text-uppercase mb-3">{{ $vehicle->marque }} · {{ $vehicle->etat }} · {{ $vehicle->annee }} · {{ $vehicle->puissance }}</p>
+                <p class="small text-muted-custom text-uppercase mb-3">{{ $vehicle->marque }} · {{ $vehicle->etat }} · {{ $vehicle->annee }}</p>
                 <div class="d-flex justify-content-between align-items-end">
                     <div>
                         <span class="d-block text-muted-custom" style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em">Prix de vente</span>

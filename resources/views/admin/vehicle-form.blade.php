@@ -9,7 +9,7 @@
         <div>
             <p class="section-label mb-0">{{ $editing ? 'Modification' : 'Nouveau véhicule' }}</p>
             <h1 class="admin-title">{{ $editing ? 'Modifier' : 'Ajouter' }} <span class="text-volt">un véhicule</span></h1>
-            <p class="admin-subtitle">Renseignez les caractéristiques puis les photos du véhicule.</p>
+            <p class="admin-subtitle">Renseignez les caractéristiques puis les photos et la vidéo du véhicule.</p>
         </div>
     </div>
 
@@ -79,7 +79,12 @@
                 <input type="number" name="km" value="{{ old('km', is_numeric($vehicle->km) ? (int) $vehicle->km : '') }}" required min="0" step="1" class="form-control form-control-dark" placeholder="ex: 8400">
                 @error('km')<div class="text-danger small">{{ $message }}</div>@enderror
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
+                <label class="small text-uppercase text-muted-custom fw-bold d-block mb-2" style="font-size:10px">Places</label>
+                <input type="number" name="places" value="{{ old('places', $vehicle->places ?? 2) }}" required min="1" max="9" step="1" class="form-control form-control-dark" placeholder="ex: 5">
+                @error('places')<div class="text-danger small">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-md-4">
                 <label class="small text-uppercase text-muted-custom fw-bold d-block mb-2" style="font-size:10px">Prix ( en FCFA )</label>
                 <input type="number" name="prix_vente" value="{{ old('prix_vente', $vehicle->prix_vente) }}" min="0" step="0.01" class="form-control form-control-dark" placeholder="Prix">
                 @error('prix_vente')<div class="text-danger small">{{ $message }}</div>@enderror
@@ -118,6 +123,24 @@
                     </p>
                     <input type="hidden" name="primary_choice" id="primary_choice" value="{{ $editing ? $vehicle->image : '' }}">
                 </div>
+            </div>
+            <div class="col-12">
+                <label class="small text-uppercase text-muted-custom fw-bold d-block mb-2" style="font-size:10px">Vidéo de présentation (optionnelle)</label>
+                <input type="file" name="video" accept="video/mp4,video/webm,video/quicktime" class="form-control form-control-dark">
+                <p class="small text-muted-custom mb-0 mt-2">
+                    Format MP4 recommandé (H.264), 128 Mo maximum. La vidéo apparaît sous les photos de la fiche véhicule.
+                </p>
+                @error('video')<div class="text-danger small">{{ $message }}</div>@enderror
+
+                @if($editing && $vehicle->video)
+                    <div class="mt-3 d-flex flex-wrap align-items-start gap-3">
+                        <video src="{{ asset($vehicle->video) }}" controls preload="metadata"
+                               style="width:320px;max-width:100%;border:1px solid var(--border);background:#000"></video>
+                        <label class="d-flex align-items-center gap-2 small text-muted-custom mb-0">
+                            <input type="checkbox" name="remove_video" value="1"> Supprimer la vidéo
+                        </label>
+                    </div>
+                @endif
             </div>
             <div class="col-12">
                 <label class="small text-uppercase text-muted-custom fw-bold d-block mb-2" style="font-size:10px">Description</label>

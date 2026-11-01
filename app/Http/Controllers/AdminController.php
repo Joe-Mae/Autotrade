@@ -115,6 +115,11 @@ class AdminController extends Controller
         $data = $this->validateVehicle($request);
         $data['slug'] = $this->uniqueSlug($data['nom']);
 
+        unset($data['video'], $data['remove_video']);
+        if ($request->hasFile('video')) {
+            $data['video'] = $this->storeUploadedVideo($request->file('video'));
+        }
+
         $uploaded = $this->collectUploadedPhotos($request);
         $data['galerie'] = $this->buildGalerie($request, null, $uploaded);
 
@@ -143,6 +148,20 @@ class AdminController extends Controller
         $data = $this->validateVehicle($request);
         if ($vehicle->nom !== $data['nom']) {
             $data['slug'] = $this->uniqueSlug($data['nom'], $vehicle->id);
+        }
+
+        unset($data['video'], $data['remove_video']);
+
+        // Vidéo : suppression demandée, ou remplacement par un nouveau fichier.
+        if ($request->boolean('remove_video')) {
+            $this->deleteUploadedFile($vehicle->video);
+            $data['video'] = null;
+        }
+
+        if ($request->hasFile('video')) {
+            $newVideo = $this->storeUploadedVideo($request->file('video'));
+            $this->deleteUploadedFile($vehicle->video);
+            $data['video'] = $newVideo;
         }
 
         // Si le formulaire n'envoie pas la case « disponible » (retirée de l'écran),
@@ -270,6 +289,9 @@ class AdminController extends Controller
             'galerie' => 'nullable|string',
             'photos' => 'nullable|array|max:4',
             'photos.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            // Vidéo de présentation : type MIME réel vérifié, extension forcée depuis le contenu.
+            'video' => 'nullable|file|mimes:mp4,webm,mov|mimetypes:video/mp4,video/webm,video/quicktime|max:131072',
+            'remove_video' => 'nullable|boolean',
         ]);
 
         $data['disponible'] = $request->boolean('disponible', true);
@@ -298,6 +320,32 @@ class AdminController extends Controller
         }
 
         $name = Str::random(40).'.'.$extension;
+        $file->move($directory, $name);
+
+        return 'uploads/vehicles/'.$name;
+    }
+
+    /**
+     * Enregistre la vidéo de présentation dans public/uploads/vehicles.
+     */
+    private function storeUploadedVideo($file): string
+    {
+        $directory = public_path('uploads/vehicles');
+
+        if (! is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        // Extension déduite du contenu réel, jamais du nom fourni par le client.
+        $extension = strtolower((string) $file->extension());
+
+        if (! in_array($extension, ['mp4', 'webm', 'mov'], true)) {
+            throw ValidationException::withMessages([
+                'video' => 'Format vidéo non autorisé (mp4, webm ou mov).',
+            ]);
+        }
+
+        $name = 'video-'.Str::random(40).'.'.$extension;
         $file->move($directory, $name);
 
         return 'uploads/vehicles/'.$name;
@@ -335,22 +383,30 @@ class AdminController extends Controller
     }
 
     /**
-     * Supprime les fichiers image téléversés d'un véhicule
+     * Supprime les fichiers téléversés d'un véhicule
      * (uniquement ceux du dossier uploads/vehicles).
      */
     private function deleteVehicleImages(Vehicle $vehicle): void
     {
         $paths = array_merge(
-            [$vehicle->image],
+            [$vehicle->image, $vehicle->video],
             is_array($vehicle->galerie) ? $vehicle->galerie : []
         );
 
         foreach ($paths as $path) {
-            if (is_string($path) && str_starts_with($path, 'uploads/vehicles/')) {
-                $file = public_path($path);
-                if (is_file($file)) {
-                    @unlink($file);
-                }
+            $this->deleteUploadedFile($path);
+        }
+    }
+
+    /**
+     * Supprime un fichier téléversé s'il appartient au dossier des véhicules.
+     */
+    private function deleteUploadedFile(?string $path): void
+    {
+        if (is_string($path) && str_starts_with($path, 'uploads/vehicles/')) {
+            $file = public_path($path);
+            if (is_file($file)) {
+                @unlink($file);
             }
         }
     }

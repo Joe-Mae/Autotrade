@@ -9,7 +9,7 @@ class Vehicle extends Model
 {
     protected $fillable = [
         'slug', 'nom', 'marque', 'categorie', 'etat', 'annee', 'carburant', 'boite',
-        'puissance', 'km', 'places', 'image', 'galerie', 'prix_vente',
+        'puissance', 'km', 'places', 'image', 'galerie', 'video', 'prix_vente',
         'disponible', 'badge', 'description',
     ];
 
@@ -50,6 +50,19 @@ class Vehicle extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /**
+     * Type MIME de la vidéo de présentation, déduit de son extension.
+     */
+    public function getVideoMimeAttribute(): ?string
+    {
+        return match (strtolower(pathinfo((string) $this->video, PATHINFO_EXTENSION))) {
+            'mp4' => 'video/mp4',
+            'webm' => 'video/webm',
+            'mov' => 'video/quicktime',
+            default => null,
+        };
     }
 
     public static function cfa(?int $n): string
